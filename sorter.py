@@ -1,14 +1,14 @@
+import argparse
 import re
-import sys
 
 
 def _normalize_table_name(name):
     # Strip quotes (double, single, backticks)
-    name = name.strip('"\'`')
+    name = name.strip("\"'`")
     # If it's schema.table, take the last part
-    if '.' in name:
-        name = name.split('.')[-1]
-    return name.lower() # Convert to lowercase
+    if "." in name:
+        name = name.split(".")[-1]
+    return name.lower()  # Convert to lowercase
 
 
 def get_references(line) -> list:
@@ -57,4 +57,9 @@ def main(filename):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1])
+    parser = argparse.ArgumentParser(
+        description="Sort SQL CREATE TABLE statements based on foreign key dependencies."
+    )
+    parser.add_argument("filename", help="The SQL file to process.")
+    args = parser.parse_args()
+    main(args.filename)
