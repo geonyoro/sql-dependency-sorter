@@ -1,17 +1,21 @@
-import os
+from pathlib import Path
 
 import pytest
+from _pytest.capture import CaptureFixture
 
 from sorter import main
 
-SAMPLES_DIR = os.path.join(os.path.dirname(__file__), "samples")
+SAMPLES_DIR = Path(__file__).parent / "samples"
 
 
-def get_sample_path(filename):
-    return os.path.join(SAMPLES_DIR, filename)
+def get_sample_path(filename: str) -> str:
+    return str(SAMPLES_DIR / filename)
 
 
-def test_simple_no_dependencies(capsys):
+def test_simple_no_dependencies(capsys: CaptureFixture[str]) -> None:
+    """
+    Tests that tables with no dependencies are output in the order they appear.
+    """
     main(get_sample_path("simple.sql"))
     captured = capsys.readouterr()
     # The order of these is determined by their appearance in the file
@@ -19,7 +23,10 @@ def test_simple_no_dependencies(capsys):
     assert captured.out.find('"table_b"') < captured.out.find("'Table_C'")
 
 
-def test_simple_dependencies(capsys):
+def test_simple_dependencies(capsys: CaptureFixture[str]) -> None:
+    """
+    Tests that tables with simple dependencies are sorted correctly.
+    """
     main(get_sample_path("dependencies.sql"))
     captured = capsys.readouterr()
     # Correct dependency order: TABLE_A -> TABLE_B -> Table_C
@@ -27,7 +34,10 @@ def test_simple_dependencies(capsys):
     assert captured.out.find("`TABLE_B`") < captured.out.find('"Table_C"')
 
 
-def test_multiple_dependencies(capsys):
+def test_multiple_dependencies(capsys: CaptureFixture[str]) -> None:
+    """
+    Tests that tables with multiple dependencies are sorted correctly.
+    """
     main(get_sample_path("multiple_dependencies.sql"))
     captured = capsys.readouterr()
     # Normalized: table_a, table_b, table_c, table_d. Order of a,b can vary.
@@ -36,17 +46,26 @@ def test_multiple_dependencies(capsys):
     assert captured.out.find("`TABLE_B`") < captured.out.find("`Table_D`")
 
 
-def test_circular_dependency():
+def test_circular_dependency() -> None:
+    """
+    Tests that a circular dependency raises a ValueError.
+    """
     with pytest.raises(ValueError, match="Cannot sort dependencies"):
         main(get_sample_path("circular.sql"))
 
 
-def test_missing_dependency():
+def test_missing_dependency() -> None:
+    """
+    Tests that a missing dependency raises a ValueError.
+    """
     with pytest.raises(ValueError, match="Cannot sort dependencies"):
         main(get_sample_path("missing.sql"))
 
 
-def test_schema_qualified(capsys):
+def test_schema_qualified(capsys: CaptureFixture[str]) -> None:
+    """
+    Tests that tables with schema-qualified names are sorted correctly.
+    """
     main(get_sample_path("schema_qualified.sql"))
     captured = capsys.readouterr()
     # Correct dependency order: table_x -> table_y -> table_z
