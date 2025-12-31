@@ -32,22 +32,47 @@ You can find example SQL files demonstrating various scenarios in the `tests/sam
 -   `missing.sql`: Demonstrates a missing dependency (will raise an error).
 -   `schema_qualified.sql`: Examples of schema-qualified table names.
 
-## Development and Testing
+## Setup and Testing
 
-The project includes a comprehensive test suite using `pytest` to ensure the correct functionality of the dependency sorter.
+This project uses `uv` for environment management and `pytest` for testing.
 
-### Running Tests
+### 1. Install `uv`
 
-1.  **Install pytest:**
-    If you don't have `pytest` installed, you can install it using pip:
-    ```bash
-    python3 -m pip install pytest
-    ```
+First, install `uv`. It is recommended to use `pipx`:
 
-2.  **Execute tests:**
-    Navigate to the project's root directory and run `pytest`:
-    ```bash
-    python3 -m pytest tests/
-    ```
+```bash
+pipx install uv
+```
 
-    All tests should pass, confirming the script's ability to handle various SQL syntax and dependency scenarios.
+Alternatively, you can use `pip`:
+
+```bash
+python3 -m pip install uv
+```
+
+### 2. Create a Virtual Environment and Install Dependencies
+
+Create and activate a virtual environment, then install the project dependencies using `uv`:
+
+```bash
+# Create a virtual environment
+python3 -m venv .venv
+# Or using uv
+uv venv
+
+# Activate the virtual environment
+source .venv/bin/activate
+
+# Install dependencies
+uv pip sync pyproject.toml
+```
+
+### 3. Running Tests
+
+With the environment set up and dependencies installed, run the tests using `pytest`:
+
+```bash
+python3 -m pytest tests/
+```
+
+All tests should pass, confirming the script's ability to handle various SQL syntax and dependency scenarios.
